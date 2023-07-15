@@ -1,0 +1,59 @@
+import re
+import spacy
+import nltk
+import pandas as pd
+from langdetect import detect
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from spellchecker import SpellChecker
+
+# Load English and French stop words
+stop_words_en = set(stopwords.words('english'))
+stop_words_fr = set(stopwords.words('french'))
+
+# Load English and French language models
+nlp_en = spacy.load('en_core_web_sm')
+nlp_fr = spacy.load('fr_core_news_sm')
+
+# Initialize English and French spell checkers
+spell_en = SpellChecker(language='en')
+spell_fr = SpellChecker(language='fr')
+
+def clean_text(text):
+    # Remove URLs, emails, phone numbers & punctuations
+    text = re.sub(r'http\S+|www.\S+|@\S+|\d+|[^\w\s]','', text)
+    # Remove non-ascii characters
+    text = text.encode('ascii', 'ignore').decode('utf-8')
+    # Tokenize text and remove short words
+    words = nltk.word_tokenize(text)
+    words = [word for word in words if len(word) > 2]
+    # Lemmatize words
+    doc = nlp_en(" ".join(words))
+    words = [token.lemma_ for token in doc]
+    doc = nlp_fr(" ".join(words))
+    words = [token.lemma_ for token in doc]
+    # Remove stop words and correct spelling
+    corrected_words = []
+    for word in words:
+        lang = detect(word)
+        if lang == 'en':
+            spell = spell_en
+            stop_words = stop_words_en
+        elif lang == 'fr':
+            spell = spell_fr
+            stop_words = stop_words_fr
+        else:
+            continue
+        if word not in stop_words:
+            corrected_word = spell.correction(word)
+            if corrected_word:
+                corrected_words.append(corrected_word)
+            else:
+                corrected_words.append(word)
+    return " ".join(corrected_words)
+
+
+
+
+# Apply the function to the 'text_review' column of your DataFrame
+df2['review_text'] = df2['review_text'].apply(clean_text)

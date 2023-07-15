@@ -1,0 +1,31 @@
+from datasketch import MinHash, MinHashLSH
+
+# Define the number of permutation functions to use in MinHash
+num_perm = 128
+
+# Create MinHash objects for each review
+minhash_list = []
+for review in df2['review_text']:
+    words = review.lower().split()
+    minhash = MinHash(num_perm=num_perm)
+    for word in words:
+        minhash.update(word.encode('utf8'))
+    minhash_list.append(minhash)
+
+# Create an LSH index and add the MinHash objects
+lsh_index = MinHashLSH(num_perm=num_perm, threshold=0.9)
+for i, minhash in enumerate(minhash_list):
+    lsh_index.insert(i, minhash)
+
+# Find the similar review pairs
+similar_pairs = []
+for i, minhash in enumerate(minhash_list):
+    results = lsh_index.query(minhash)
+    for j in results:
+        if i < j:
+            similar_pairs.append((i, j))
+
+# Print the similar review pairs
+for pair in similar_pairs:
+    print(df2.iloc[pair[0]]['review_text'])
+    print(df2.iloc[pair[1]]['review_text'])

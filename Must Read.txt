@@ -1,0 +1,12 @@
+1)This code contains multiples steps of : Data importing, Data exploration, Data cleaning, Data Pre-procressing, 
+Duplicates removal Algorithms, Sentiment Analysis basis on POS tags and TextBlob.
+
+2)Each Duplicate removal Algorithm is separate from the other, either an updated version of the previous or a total different version.
+
+3)Each Algorithm can only be run alone with the whole code based on the condition you want 
+without running the other algorithms to avoid unnecessary rows removal and dataframe mixing!!
+
+4)The Data cleaning function of removing URLs, punctuations, etc, can be run either before the duplicate 
+algorithm to clean the texts and maximize the duplicate algorithm speed and be used on the Sentiment 
+Analysis OR can be run after the duplicate algorithm to only be used on Sentiment Analysis.
+
